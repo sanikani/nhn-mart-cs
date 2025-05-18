@@ -17,7 +17,7 @@ public class AnswerServiceImpl implements AnswerService {
     private final AnswerRepository answerRepository;
 
     @Override
-    public void registerAnswer(String adminId, AnswerRegisterRequest answerRequest, Long inquiryId) {
+    public Answer registerAnswer(String adminId, AnswerRegisterRequest answerRequest, Long inquiryId) {
         Inquiry inquiry = inquiryService.getInquiryById(inquiryId);
         if (inquiry == null) {
             throw new InquiryNotFoundException();
@@ -25,6 +25,7 @@ public class AnswerServiceImpl implements AnswerService {
 
         Answer answer = answerRepository.save(new Answer(answerRepository.nextOrderId(), answerRequest.getContent(), adminId));
         inquiry.registerAnswer(answer.getAnswerId());
+        return answer;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.nhnacademy.mart.user.admin.domain;
 
 import lombok.Getter;
+import org.springframework.util.StringUtils;
 
 @Getter
 public class Admin {
@@ -15,21 +16,21 @@ public class Admin {
     }
 
     private void setId(String id) {
-        if (id == null) {
+        if (!StringUtils.hasText(id)) {
             throw new IllegalArgumentException("no id");
         }
         this.id = id;
     }
 
     private void setName(String name) {
-        if (name == null) {
+        if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("no name");
         }
         this.name = name;
     }
 
     private void setPassword(String password) {
-        if (password == null) {
+        if (!StringUtils.hasText(password)) {
             throw new IllegalArgumentException("no password");
         }
         this.password = password;

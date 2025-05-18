@@ -7,7 +7,6 @@ import com.nhnacademy.mart.inquiry.exception.InquiryNotFoundException;
 import com.nhnacademy.mart.inquiry.repository.InquiryRepository;
 import com.nhnacademy.mart.user.customer.exception.CustomerNotFoundException;
 import com.nhnacademy.mart.user.customer.service.CustomerService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,10 +58,10 @@ class InquiryServiceImplTest {
         when(req.getAttachments()).thenReturn(List.of());
         when(req.getTitle()).thenReturn(title);
         when(req.getContent()).thenReturn(content);
-        when(req.getCategory()).thenReturn(Category.기타);
+        when(req.getCategory()).thenReturn(Category.OTHER);
 
         when(inquiryRepository.nextOrderId()).thenReturn(42L);
-        Inquiry saved = new Inquiry(42L, title, content, Category.기타, CUSTOMER_ID, List.of());
+        Inquiry saved = new Inquiry(42L, title, content, Category.OTHER, CUSTOMER_ID, List.of());
         when(inquiryRepository.save(any(Inquiry.class))).thenReturn(saved);
 
         Inquiry result = inquiryService.registerInquiry(req, CUSTOMER_ID);
@@ -72,7 +71,7 @@ class InquiryServiceImplTest {
                 inq.getId() == 42L &&
                         inq.getTitle().equals(title) &&
                         inq.getContent().equals(content) &&
-                        inq.getCategory() == Category.기타 &&
+                        inq.getCategory() == Category.OTHER &&
                         CUSTOMER_ID.equals(inq.getCustomerId()) &&
                         inq.getAttachments().isEmpty()
         ));
@@ -95,10 +94,10 @@ class InquiryServiceImplTest {
             Content content = new Content("c");
             when(req.getTitle()).thenReturn(title);
             when(req.getContent()).thenReturn(content);
-            when(req.getCategory()).thenReturn(Category.제안);
+            when(req.getCategory()).thenReturn(Category.SUGGESTIONS);
 
             when(inquiryRepository.nextOrderId()).thenReturn(7L);
-            Inquiry saved = new Inquiry(7L, title, content, Category.제안, CUSTOMER_ID, List.of(mapped));
+            Inquiry saved = new Inquiry(7L, title, content, Category.SUGGESTIONS, CUSTOMER_ID, List.of(mapped));
             when(inquiryRepository.save(any(Inquiry.class))).thenReturn(saved);
 
             Inquiry result = inquiryService.registerInquiry(req, CUSTOMER_ID);
@@ -113,7 +112,7 @@ class InquiryServiceImplTest {
     void getAllInquiries_NoCustomer_ShouldThrow() {
         when(customerService.isExists(CUSTOMER_ID)).thenReturn(false);
 
-        assertThatThrownBy(() -> inquiryService.getAllInquiries(CUSTOMER_ID, Category.기타))
+        assertThatThrownBy(() -> inquiryService.getAllInquiries(CUSTOMER_ID, Category.OTHER))
                 .isInstanceOf(CustomerNotFoundException.class);
     }
 
@@ -122,18 +121,43 @@ class InquiryServiceImplTest {
     void getAllInquiries_WithCategory_ShouldFilterAndSort() {
         when(customerService.isExists(CUSTOMER_ID)).thenReturn(true);
 
-        Inquiry i1 = new Inquiry(1L, new Title("a"), new Content("a"), Category.기타, CUSTOMER_ID, List.of());
-        Inquiry i2 = new Inquiry(2L, new Title("b"), new Content("b"), Category.제안, CUSTOMER_ID, List.of());
-        Inquiry i3 = new Inquiry(3L, new Title("c"), new Content("c"), Category.기타, CUSTOMER_ID, List.of());
+        Inquiry i1 = new Inquiry(1L, new Title("a"), new Content("a"), Category.OTHER, CUSTOMER_ID, List.of());
+        Inquiry i2 = new Inquiry(2L, new Title("b"), new Content("b"), Category.SUGGESTIONS, CUSTOMER_ID, List.of());
+        Inquiry i3 = new Inquiry(3L, new Title("c"), new Content("c"), Category.OTHER, CUSTOMER_ID, List.of());
 
         when(inquiryRepository.findAllByCustomerId(CUSTOMER_ID))
                 .thenReturn(List.of(i1, i2, i3));
 
-        List<Inquiry> result = inquiryService.getAllInquiries(CUSTOMER_ID, Category.기타);
+        List<Inquiry> result = inquiryService.getAllInquiries(CUSTOMER_ID, Category.OTHER);
 
         assertThat(result)
                 .hasSize(2)
-                .allMatch(inq -> inq.getCategory() == Category.기타);
+                .allMatch(inq -> inq.getCategory() == Category.OTHER);
+    }
+
+    @Test
+    @DisplayName("getAllInquiries: 전체 문의 조회")
+    void getAllInquiries_WithoutCategory() {
+        // given
+        when(customerService.isExists(CUSTOMER_ID)).thenReturn(true);
+
+        Inquiry i1 = new Inquiry(1L, new Title("a"), new Content("a"), Category.OTHER, CUSTOMER_ID, List.of());
+        Inquiry i2 = new Inquiry(2L, new Title("b"), new Content("b"), Category.SUGGESTIONS, CUSTOMER_ID, List.of());
+        Inquiry i3 = new Inquiry(3L, new Title("c"), new Content("c"), Category.COMPLAINTS, CUSTOMER_ID, List.of());
+        when(inquiryRepository.findAllByCustomerId(CUSTOMER_ID))
+                .thenReturn(List.of(i1, i2, i3));
+
+        // when
+        List<Inquiry> result = inquiryService.getAllInquiries(CUSTOMER_ID, null);
+
+        // then
+        assertThat(result).hasSize(3)
+                .extracting(Inquiry::getId, Inquiry::getCategory)
+                .containsExactlyInAnyOrder(
+                        tuple(1L, Category.OTHER),
+                        tuple(2L, Category.SUGGESTIONS),
+                        tuple(3L, Category.COMPLAINTS)
+                );
     }
 
     @Test
@@ -148,7 +172,7 @@ class InquiryServiceImplTest {
     @Test
     @DisplayName("getInquiryById: 존재하면 해당 Inquiry 반환")
     void getInquiryById_Found_ShouldReturn() {
-        Inquiry i = new Inquiry(5L, new Title("t"), new Content("c"), Category.기타, CUSTOMER_ID, List.of());
+        Inquiry i = new Inquiry(5L, new Title("t"), new Content("c"), Category.OTHER, CUSTOMER_ID, List.of());
         when(inquiryRepository.findById(5L)).thenReturn(i);
 
         Inquiry result = inquiryService.getInquiryById(5L);
@@ -159,16 +183,34 @@ class InquiryServiceImplTest {
     @Test
     @DisplayName("getNotAnsweredInquiries: 카테고리 필터 적용")
     void getNotAnsweredInquiries_WithCategory_ShouldFilter() {
-        Inquiry a = new Inquiry(1L, new Title("x"), new Content("x"), Category.제안, "u", List.of());
-        Inquiry b = new Inquiry(2L, new Title("y"), new Content("y"), Category.기타, "u", List.of());
+        Inquiry a = new Inquiry(1L, new Title("x"), new Content("x"), Category.SUGGESTIONS, "u", List.of());
+        Inquiry b = new Inquiry(2L, new Title("y"), new Content("y"), Category.OTHER, "u", List.of());
         when(inquiryRepository.findNotAnsweredInquiries())
                 .thenReturn(List.of(a, b));
 
-        List<Inquiry> result = inquiryService.getNotAnsweredInquiries(Category.기타);
+        List<Inquiry> result = inquiryService.getNotAnsweredInquiries(Category.OTHER);
 
         assertThat(result)
                 .singleElement()
                 .extracting(Inquiry::getCategory)
-                .isEqualTo(Category.기타);
+                .isEqualTo(Category.OTHER);
+    }
+
+    @Test
+    @DisplayName("getNotAnsweredInquiries: 전체 조회")
+    void getNotAnsweredInquiries_WithOutCategory() {
+        Inquiry a = new Inquiry(1L, new Title("x"), new Content("x"), Category.SUGGESTIONS, "u", List.of());
+        Inquiry b = new Inquiry(2L, new Title("y"), new Content("y"), Category.OTHER, "u", List.of());
+        when(inquiryRepository.findNotAnsweredInquiries())
+                .thenReturn(List.of(a, b));
+
+        List<Inquiry> result = inquiryService.getNotAnsweredInquiries(null);
+
+        assertThat(result).hasSize(2)
+                .extracting(Inquiry::getId, Inquiry::getCategory)
+                .containsExactlyInAnyOrder(
+                        tuple(1L, Category.SUGGESTIONS),
+                        tuple(2L, Category.OTHER)
+                );
     }
 }

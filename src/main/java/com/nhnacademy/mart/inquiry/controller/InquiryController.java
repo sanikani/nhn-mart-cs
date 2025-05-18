@@ -24,7 +24,7 @@ public class InquiryController {
     private final AnswerService answerService;
 
     @GetMapping
-    public String inquiryRegisterForm(Model model) {
+    public String inquiryRegisterForm() {
         return "inquiryRegisterForm";
     }
 

@@ -18,11 +18,15 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileUtil {
 
-    private static final String UPLOAD_DIR = "/Users/chosun-nhn23/attachments/";
+    private static String uploadDir = "/Users/chosun-nhn23/attachments/";
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
             "image/gif", "image/jpeg", "image/png"
     );
+
+    static void setUploadDir(String uploadDir) {
+        FileUtil.uploadDir = uploadDir;
+    }
 
     public static Attachment uploadFile(MultipartFile multipartFile){
         String contentType = multipartFile.getContentType();
@@ -42,7 +46,7 @@ public class FileUtil {
         }
 
         try {
-            Files.createDirectories(Paths.get(UPLOAD_DIR));
+            Files.createDirectories(Paths.get(uploadDir));
 
             String extension = "";
             int dotIndex = originalFilename.lastIndexOf('.');
@@ -51,7 +55,7 @@ public class FileUtil {
             }
 
             String fileId = UUID.randomUUID() + extension;
-            Path targetPath = Paths.get(UPLOAD_DIR, fileId);
+            Path targetPath = Paths.get(uploadDir, fileId);
 
             multipartFile.transferTo(targetPath);
 

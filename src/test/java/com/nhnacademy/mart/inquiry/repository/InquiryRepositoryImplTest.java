@@ -120,7 +120,7 @@ class InquiryRepositoryImplTest {
         return new Inquiry(id,
                 new Title("title"),
                 new Content("content"),
-                Category.기타,
+                Category.OTHER,
                 "user",
                 new ArrayList<>());
     }

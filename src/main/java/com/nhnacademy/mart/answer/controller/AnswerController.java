@@ -20,13 +20,16 @@ public class AnswerController {
     private final InquiryService inquiryService;
 
     @GetMapping("/{inquiryId}")
-    public String answerForm(@PathVariable Long inquiryId, Model model) {
+    public String answerForm(@PathVariable Long inquiryId,
+                             Model model) {
         model.addAttribute("inquiry", inquiryService.getInquiryById(inquiryId));
         return "/admin/answerForm";
     }
 
     @PostMapping("/{inquiryId}")
-    public String answer(@PathVariable Long inquiryId, @Valid @ModelAttribute AnswerRegisterRequest answerRequest, HttpServletRequest request) {
+    public String answer(@PathVariable Long inquiryId,
+                         @Valid @ModelAttribute AnswerRegisterRequest answerRequest,
+                         HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         String adminId = (String) session.getAttribute("admin");
         answerService.registerAnswer(adminId, answerRequest, inquiryId);

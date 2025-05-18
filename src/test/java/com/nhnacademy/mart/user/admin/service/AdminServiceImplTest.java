@@ -3,7 +3,6 @@ package com.nhnacademy.mart.user.admin.service;
 import com.nhnacademy.mart.inquiry.exception.AdminNotFoundException;
 import com.nhnacademy.mart.user.admin.domain.Admin;
 import com.nhnacademy.mart.user.admin.repository.AdminRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +22,10 @@ class AdminServiceImplTest {
     @InjectMocks
     private AdminServiceImpl adminService;
 
-    private final String EXISTING_ID = "admin1";
-    private final String ADMIN_NAME = "admin";
-    private final String CORRECT_PASSWORD = "pass";
-    private final String WRONG_PASSWORD = "bad";
+    private static final String EXISTING_ID = "admin1";
+    private static final String ADMIN_NAME = "admin";
+    private static final String CORRECT_PASSWORD = "pass";
+    private static final String WRONG_PASSWORD = "bad";
 
     @Test
     @DisplayName("존재하는 관리자 ID와 올바른 비밀번호일 때 true 반환")
