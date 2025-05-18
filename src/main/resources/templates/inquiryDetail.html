@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="#{title.inquiry.detail}">문의 상세</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* 기존 answer-box, no-answer 클래스 유지 */
+    .answer-box {
+      background-color: #e6ffe6;
+      padding: 15px;
+      margin-top: 30px;
+      border: 1px solid #66cc66;
+      border-radius: 4px;
+    }
+    .no-answer {
+      margin-top: 30px;
+      color: #888;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="container my-5">
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h4 class="mb-0" th:text="#{title.inquiry.detail}">문의 상세</h4>
+    </div>
+    <div class="card-body">
+
+      <!-- 문의 정보 -->
+      <dl class="row mb-4">
+        <dt class="col-sm-2" th:text="#{label.id}">ID</dt>
+        <dd class="col-sm-10" th:text="${inquiry.id}">1</dd>
+
+        <dt class="col-sm-2" th:text="#{label.title}">제목</dt>
+        <dd class="col-sm-10" th:text="${inquiry.title.value}">제목입니다</dd>
+
+        <dt class="col-sm-2" th:text="#{label.content}">내용</dt>
+        <dd class="col-sm-10">
+          <div class="border rounded p-3 bg-white" th:text="${inquiry.content.value}">
+            본문 내용입니다
+          </div>
+        </dd>
+
+        <dt class="col-sm-2" th:text="#{label.status}">상태</dt>
+        <dd class="col-sm-10" th:text="#{'inquiry.status.' + ${inquiry.status}}">WAITING</dd>
+
+        <dt class="col-sm-2" th:text="#{label.date}">작성일</dt>
+        <dd class="col-sm-10" th:text="${#temporals.format(inquiry.createDate, 'yyyy-MM-dd HH:mm')}">
+          2025-05-15
+        </dd>
+
+        <dt class="col-sm-2" th:text="#{label.customerId}">작성자</dt>
+        <dd class="col-sm-10" th:text="${inquiry.customerId}">customer1</dd>
+
+        <dt class="col-sm-2" th:text="#{label.attachment.list}">첨부파일</dt>
+        <dd class="col-sm-10">
+          <ul class="list-group list-group-flush"
+              th:if="${inquiry.attachments != null and !inquiry.attachments.isEmpty()}">
+            <li class="list-group-item p-1" th:each="file : ${inquiry.attachments}">
+              <a th:href="@{/attachments/{id}(id=${file.fileName})}"
+                 th:text="${file.originalFileName}"
+                 target="_blank"
+                 class="link-secondary">
+                파일명
+              </a>
+            </li>
+          </ul>
+          <div th:if="${inquiry.attachments == null or inquiry.attachments.isEmpty()}"
+               class="text-muted fst-italic">
+            <span th:text="#{label.none}">없음</span>
+          </div>
+        </dd>
+      </dl>
+
+      <!-- 답변 영역 -->
+      <div th:if="${inquiry.status.name() == 'ANSWERED'}" class="answer-box">
+        <h5 th:text="#{label.answer}">답변</h5>
+        <dl class="row">
+          <dt class="col-sm-3" th:text="#{label.answer.date}">답변 일시</dt>
+          <dd class="col-sm-9" th:text="${#temporals.format(answer.answeredAt, 'yyyy-MM-dd HH:mm')}">
+            2025-05-15 15:30
+          </dd>
+
+          <dt class="col-sm-3" th:text="#{label.answer.admin}">답변자</dt>
+          <dd class="col-sm-9" th:text="${answer.adminId}">admin1</dd>
+
+          <dt class="col-sm-3" th:text="#{label.answer.content}">답변 내용</dt>
+          <dd class="col-sm-9">
+            <div class="border rounded p-3 bg-white" th:text="${answer.content.value}">
+              답변 내용입니다
+            </div>
+          </dd>
+        </dl>
+      </div>
+
+      <!-- 답변 미등록 -->
+      <div th:if="${inquiry.status.name() != 'ANSWERED'}" class="no-answer">
+        <p th:text="#{label.answer.not.yet}">아직 답변이 등록되지 않았습니다.</p>
+      </div>
+
+      <!-- 목록으로 돌아가기 -->
+      <div class="mt-4 text-end">
+        <a th:href="@{/cs}" class="btn btn-secondary" th:text="#{button.back.to.list}">목록으로</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

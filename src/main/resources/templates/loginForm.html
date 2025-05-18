@@ -1,0 +1,71 @@
+<!-- src/main/resources/templates/loginForm.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="#{title.login}">로그인</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="height:100vh;">
+
+<div class="card shadow-sm" style="width:100%; max-width:400px;">
+  <div class="card-header bg-primary text-white text-center">
+    <h4 class="mb-0" th:text="#{title.login}">로그인</h4>
+  </div>
+  <div class="card-body">
+    <form th:action="@{/cs/auth/login}"
+          method="post"
+          class="needs-validation"
+          novalidate>
+      <div class="mb-3">
+        <label for="id" class="form-label">
+          <span th:text="#{label.id}">ID</span>
+        </label>
+        <input type="text"
+               id="id"
+               name="id"
+               class="form-control"
+               required>
+        <div class="invalid-feedback" th:text="#{validation.id.required}">
+          아이디를 입력해주세요.
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">
+          <span th:text="#{label.password}">비밀번호</span>
+        </label>
+        <input type="password"
+               id="password"
+               name="password"
+               class="form-control"
+               required>
+        <div class="invalid-feedback" th:text="#{validation.password.required}">
+          비밀번호를 입력해주세요.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100" th:text="#{button.login}">로그인</button>
+    </form>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // HTML5 validation
+  (function () {
+    'use strict';
+    document.querySelectorAll('.needs-validation').forEach(form => {
+      form.addEventListener('submit', ev => {
+        if (!form.checkValidity()) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+</body>
+</html>
